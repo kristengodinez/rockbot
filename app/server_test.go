@@ -8,6 +8,8 @@ import (
 )
 
 func TestCreditCardValidator(t *testing.T) {
+	// 3379 5135 6110 8795
+	// 2769 1483 0405 9987
 	t.Run("validating valid numbers for Luhn algorithm", func(t *testing.T) {
 		request := newGetValidationRequest("3379 5135 6110 8795")
 		response := httptest.NewRecorder()
@@ -16,6 +18,8 @@ func TestCreditCardValidator(t *testing.T) {
 
 		assertResponseBody(t, response.Body.String(), "true")
 	})
+	// 3379 5135 6110 8794
+	// 2769 1483 0405 9986
 	t.Run("catching invalid numbers for Luhn algorithm", func(t *testing.T) {
 		request := newGetValidationRequest("3379 5135 6110 8794")
 		response := httptest.NewRecorder()
