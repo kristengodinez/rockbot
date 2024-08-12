@@ -7,8 +7,8 @@ import (
 )
 
 func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	store := InMemoryCreditCardStore{}
-	server := CreditCardValidatorServer{&store}
+	store := NewInMemoryCreditCardStore()
+	server := CreditCardValidatorServer{store}
 	creditCardNumber := "3379 5135 6110 8795"
 
 	response := httptest.NewRecorder()
