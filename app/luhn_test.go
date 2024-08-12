@@ -18,4 +18,13 @@ func TestLuhn(t *testing.T) {
 	// Invalid numbers
 	// 3379 5135 6110 8794
 	// 2769 1483 0405 9986
+	t.Run("catching invalid numbers for Luhn algorithm", func(t *testing.T) {
+		got := Luhn("3379 5135 6110 8794")
+		want := false
+
+		if got != want {
+			t.Errorf("got %t want %t", got, want)
+		}
+
+	})
 }
