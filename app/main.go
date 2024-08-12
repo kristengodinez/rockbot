@@ -5,7 +5,13 @@ import (
 	"net/http"
 )
 
+type InMemoryCreditCardStore struct{}
+
+func (i *InMemoryCreditCardStore) GetCardValidation(number string) bool {
+	return true
+}
+
 func main() {
-	handler := &CreditCardValidatorServer{}
-	log.Fatal(http.ListenAndServe(":5001", handler))
+	server := &CreditCardValidatorServer{&InMemoryCreditCardStore{}}
+	log.Fatal(http.ListenAndServe(":5001", server))
 }
