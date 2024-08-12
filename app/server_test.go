@@ -7,14 +7,30 @@ import (
 	"testing"
 )
 
+type StubCreditCardStore struct {
+	validation map[string]bool
+}
+
+func (s *StubCreditCardStore) GetCardValidation(creditCardNumber string) bool {
+	isValid := s.validation[creditCardNumber]
+	return isValid
+}
+
 func TestCreditCardValidator(t *testing.T) {
+	store := StubCreditCardStore{
+		map[string]bool{
+			"3379 5135 6110 8795": true,
+			"3379 5135 6110 8794": false,
+		},
+	}
+	server := &CreditCardValidatorServer{&store}
 	// 3379 5135 6110 8795
 	// 2769 1483 0405 9987
 	t.Run("validating valid numbers for Luhn algorithm", func(t *testing.T) {
 		request := newGetValidationRequest("3379 5135 6110 8795")
 		response := httptest.NewRecorder()
 
-		CreditCardValidatorServer(response, request)
+		server.ServeHTTP(response, request)
 
 		assertResponseBody(t, response.Body.String(), "true")
 	})
@@ -24,7 +40,7 @@ func TestCreditCardValidator(t *testing.T) {
 		request := newGetValidationRequest("3379 5135 6110 8794")
 		response := httptest.NewRecorder()
 
-		CreditCardValidatorServer(response, request)
+		server.ServeHTTP(response, request)
 
 		assertResponseBody(t, response.Body.String(), "false")
 	})

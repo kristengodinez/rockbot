@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	handler := http.HandlerFunc(CreditCardValidatorServer)
+	handler := &CreditCardValidatorServer{}
 	log.Fatal(http.ListenAndServe(":5001", handler))
 }

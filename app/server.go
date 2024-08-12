@@ -7,10 +7,18 @@ import (
 	"unicode"
 )
 
-func CreditCardValidatorServer(w http.ResponseWriter, r *http.Request) {
+type CreditCardStore interface {
+	GetCardValidation(number string) bool
+}
+
+type CreditCardValidatorServer struct {
+	store CreditCardStore
+}
+
+func (c *CreditCardValidatorServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	creditCardNumber := strings.TrimPrefix(r.URL.Path, "/credit_card_number/")
 
-	fmt.Fprint(w, GetCardValidation(creditCardNumber))
+	fmt.Fprint(w, c.store.GetCardValidation(creditCardNumber))
 }
 
 func GetCardValidation(number string) bool {
