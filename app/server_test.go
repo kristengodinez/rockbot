@@ -32,18 +32,35 @@ func TestCreditCardValidator(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
+		assertStatus(t, response.Code, http.StatusOK)
 		assertResponseBody(t, response.Body.String(), "true")
 	})
 	// 3379 5135 6110 8794
 	// 2769 1483 0405 9986
-	t.Run("catching invalid numbers for Luhn algorithm", func(t *testing.T) {
+	t.Run("returns 400 for invalid numbers for Luhn algorithm", func(t *testing.T) {
 		request := newGetValidationRequest("3379 5135 6110 8794")
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
 
+		assertStatus(t, response.Code, http.StatusBadRequest)
 		assertResponseBody(t, response.Body.String(), "false")
 	})
+	t.Run("returns 400 bad request on malformed input", func(t *testing.T) {
+		request := newGetValidationRequest("abcdef")
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		assertStatus(t, response.Code, http.StatusBadRequest)
+	})
+}
+
+func assertStatus(t testing.TB, got, want int) {
+	t.Helper()
+	if got != want {
+		t.Errorf("did not get correct status, got %d, want %d", got, want)
+	}
 }
 
 func newGetValidationRequest(creditCardNumber string) *http.Request {

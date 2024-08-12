@@ -18,7 +18,13 @@ type CreditCardValidatorServer struct {
 func (c *CreditCardValidatorServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	creditCardNumber := strings.TrimPrefix(r.URL.Path, "/credit_card_number/")
 
-	fmt.Fprint(w, c.store.GetCardValidation(creditCardNumber))
+	isValid := c.store.GetCardValidation((creditCardNumber))
+
+	if !isValid {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	fmt.Fprint(w, isValid)
 }
 
 func GetCardValidation(number string) bool {
