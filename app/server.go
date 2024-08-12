@@ -31,7 +31,6 @@ func (c *CreditCardValidatorServer) ServeHTTP(w http.ResponseWriter, r *http.Req
 }
 
 func GetCardValidation(number string) bool {
-	fmt.Println(number)
 	var factor int = 2
 	var sum int = 0
 	var product int = 1
