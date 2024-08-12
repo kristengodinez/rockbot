@@ -9,10 +9,10 @@ import (
 func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 	store := NewInMemoryCreditCardStore()
 	server := CreditCardValidatorServer{store}
-	creditCardNumber := "3379 5135 6110 8795"
+	jsonPayload := []byte(`{"CreditCardNumber": "3379 5135 6110 8795"}`)
 
 	response := httptest.NewRecorder()
-	server.ServeHTTP(response, newGetValidationRequest(creditCardNumber))
+	server.ServeHTTP(response, newGetValidationRequest(jsonPayload))
 	assertStatus(t, response.Code, http.StatusOK)
 
 	assertResponseBody(t, response.Body.String(), "true")

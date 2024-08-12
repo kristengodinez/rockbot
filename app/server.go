@@ -1,9 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
-	"strings"
 	"unicode"
 )
 
@@ -16,9 +17,11 @@ type CreditCardValidatorServer struct {
 }
 
 func (c *CreditCardValidatorServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	creditCardNumber := strings.TrimPrefix(r.URL.Path, "/credit_card_number/")
+	creditCardPayload, _ := io.ReadAll(r.Body)
+	m := make(map[string]string)
+	json.Unmarshal(creditCardPayload, &m)
 
-	isValid := c.store.GetCardValidation((creditCardNumber))
+	isValid := c.store.GetCardValidation(m["CreditCardNumber"])
 
 	if !isValid {
 		w.WriteHeader(http.StatusBadRequest)
@@ -28,6 +31,7 @@ func (c *CreditCardValidatorServer) ServeHTTP(w http.ResponseWriter, r *http.Req
 }
 
 func GetCardValidation(number string) bool {
+	fmt.Println(number)
 	var factor int = 2
 	var sum int = 0
 	var product int = 1

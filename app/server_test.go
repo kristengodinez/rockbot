@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -27,7 +27,8 @@ func TestCreditCardValidator(t *testing.T) {
 	// 3379 5135 6110 8795
 	// 2769 1483 0405 9987
 	t.Run("validating valid numbers for Luhn algorithm", func(t *testing.T) {
-		request := newGetValidationRequest("3379 5135 6110 8795")
+		jsonPayload := []byte(`{"CreditCardNumber": "3379 5135 6110 8795"}`)
+		request := newGetValidationRequest(jsonPayload)
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
@@ -38,7 +39,8 @@ func TestCreditCardValidator(t *testing.T) {
 	// 3379 5135 6110 8794
 	// 2769 1483 0405 9986
 	t.Run("returns 400 for invalid numbers for Luhn algorithm", func(t *testing.T) {
-		request := newGetValidationRequest("3379 5135 6110 8794")
+		jsonPayload := []byte(`{"CreditCardNumber": "3379 5135 6110 8794"}`)
+		request := newGetValidationRequest(jsonPayload)
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
@@ -47,7 +49,8 @@ func TestCreditCardValidator(t *testing.T) {
 		assertResponseBody(t, response.Body.String(), "false")
 	})
 	t.Run("returns 400 bad request on malformed input", func(t *testing.T) {
-		request := newGetValidationRequest("abcdef")
+		jsonPayload := []byte(`{"CreditCardNumber": "abcdef"}`)
+		request := newGetValidationRequest(jsonPayload)
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
@@ -63,8 +66,8 @@ func assertStatus(t testing.TB, got, want int) {
 	}
 }
 
-func newGetValidationRequest(creditCardNumber string) *http.Request {
-	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/credit_card_number/%s", creditCardNumber), nil)
+func newGetValidationRequest(creditCardPayload []byte) *http.Request {
+	req, _ := http.NewRequest(http.MethodGet, "/credit_card_number/", bytes.NewBuffer(creditCardPayload))
 	return req
 }
 
