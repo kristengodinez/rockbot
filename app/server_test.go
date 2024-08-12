@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -8,29 +9,31 @@ import (
 
 func TestCreditCardValidator(t *testing.T) {
 	t.Run("validating valid numbers for Luhn algorithm", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/credit_card_number/3379 5135 6110 8795", nil)
+		request := newGetValidationRequest("3379 5135 6110 8795")
 		response := httptest.NewRecorder()
 
 		CreditCardValidatorServer(response, request)
 
-		got := response.Body.String()
-		want := "true"
-
-		if got != want {
-			t.Errorf("got %q, want %q", got, want)
-		}
+		assertResponseBody(t, response.Body.String(), "true")
 	})
 	t.Run("catching invalid numbers for Luhn algorithm", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/credit_card_number/3379 5135 6110 8794", nil)
+		request := newGetValidationRequest("3379 5135 6110 8794")
 		response := httptest.NewRecorder()
 
 		CreditCardValidatorServer(response, request)
 
-		got := response.Body.String()
-		want := "false"
-
-		if got != want {
-			t.Errorf("got %q, want %q", got, want)
-		}
+		assertResponseBody(t, response.Body.String(), "false")
 	})
+}
+
+func newGetValidationRequest(creditCardNumber string) *http.Request {
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/credit_card_number/%s", creditCardNumber), nil)
+	return req
+}
+
+func assertResponseBody(t testing.TB, got, want string) {
+	t.Helper()
+	if got != want {
+		t.Errorf("response body is wrong, got %q want %q", got, want)
+	}
 }
