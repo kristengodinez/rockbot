@@ -10,10 +10,14 @@ import (
 func CreditCardValidatorServer(w http.ResponseWriter, r *http.Request) {
 	creditCardNumber := strings.TrimPrefix(r.URL.Path, "/credit_card_number/")
 
+	fmt.Fprint(w, GetCardValidation(creditCardNumber))
+}
+
+func GetCardValidation(number string) bool {
 	var factor int = 2
 	var sum int = 0
 	var product int = 1
-	for _, ch := range creditCardNumber {
+	for _, ch := range number {
 		if unicode.IsDigit(ch) {
 			product = (int(ch) - '0') * factor
 
@@ -32,10 +36,8 @@ func CreditCardValidatorServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if sum%10 == 0 {
-		fmt.Fprint(w, "true")
-		return
+		return true
 	}
 
-	fmt.Fprint(w, "false")
-
+	return false
 }
